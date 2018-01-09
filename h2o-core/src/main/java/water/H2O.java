@@ -1397,7 +1397,7 @@ final public class H2O {
 
   /* A static list of acceptable Cloud members passed via -flatfile option.
    * It is updated also when a new client appears. */
-  private static HashSet<H2ONode> STATIC_H2OS = null;
+  private static Set<H2ONode> STATIC_H2OS = null;
 
   /* List of all clients that ever connected to this cloud. Keys are IP:PORT of these clients */
   private static Map<String, H2ONode> CLIENTS_MAP = new ConcurrentHashMap<>();
@@ -2099,10 +2099,9 @@ final public class H2O {
     }
   }
 
-
   /** Add node to a manual multicast list.
-   *  Note: the method is valid only if -flatfile option was specified on commandline*
-   * @param node  h2o node
+   * Note: the method is valid only if -flatfile option was specified on commandline
+   * @param node H2O node
    * @return true if node was already in the multicast list.
    */
   public static boolean addNodeToFlatfile(H2ONode node) {
@@ -2111,8 +2110,8 @@ final public class H2O {
   }
 
   /** Remove node from a manual multicast list.
-    *  Note: the method is valid only if -flatfile option was specified on commandline*
-    * @param node  h2o node
+    *  Note: the method is valid only if -flatfile option was specified on commandline
+    * @param node H2O node
     * @return true if node was already in the multicast list.
     */
   public static boolean removeNodeFromFlatfile(H2ONode node){
@@ -2123,7 +2122,7 @@ final public class H2O {
   /** Check if a node is included in a manual multicast list.
    *  Note: the method is valid only if -flatfile option was specified on commandline
    *
-   * @param node  h2o node
+   * @param node H2O node
    * @return true if node was already in the multicast list.
    */
   public static boolean isNodeInFlatfile(H2ONode node) {
@@ -2132,7 +2131,7 @@ final public class H2O {
   }
 
   /**
-   * Is manual multicast enabled?
+   * Check if manual multi-cast is enabled.
    * @return  true if `-flatfile` option was specified on commandline
    */
   public static boolean isFlatfileEnabled() {
@@ -2140,20 +2139,22 @@ final public class H2O {
   }
 
   /** Setup a set of nodes which should be contacted during
-   * manual multicast.
-   * @param nodes  set of H2O nodes.
+   * @param nodes set of H2O nodes
    */
-  public static void setFlatfile(HashSet<H2ONode> nodes) {
-    STATIC_H2OS = nodes;
+  public static void setFlatfile(Set<H2ONode> nodes) {
+    if(nodes == null){
+      STATIC_H2OS = null;
+    }else{
+      STATIC_H2OS = Collections.newSetFromMap(new ConcurrentHashMap<H2ONode, Boolean>());
+      STATIC_H2OS.addAll(nodes);
+    }
   }
 
-  /** Returns a set of nodes which are contacted during manual
-   * multicast. The returned value can be modified by the user since
-   * the call return a copy of the original set.
-   * @return  set of nodes
+  /** Returns a set of nodes which are contacted during manual multi-cast.
+   * @return  set of H2O nodes
    */
-  public static HashSet<H2ONode> getFlatfile() {
-    return (HashSet<H2ONode>) STATIC_H2OS.clone();
+  public static Set<H2ONode> getFlatfile() {
+    return new HashSet<>(STATIC_H2OS);
   }
 
   public static H2ONode reportClient(H2ONode client){
